@@ -1,0 +1,3 @@
+data/*.pkl
+notebook/.ipynb_checkpoints/*
+.DS_Store
