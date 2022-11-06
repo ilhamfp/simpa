@@ -18,10 +18,9 @@ paper_router = r = APIRouter()
 redis_client = redis.from_url(config.REDIS_URL)
 search_index = SearchIndex()
 
-async def process_paper(p, i: int) -> t.Dict[str, t.Any]:
-    print("Trying to get: ", p.paper_pk)
-    paper = await Paper.get(p.paper_pk)
-    paper = paper.dict()
+async def process_paper(p, i: int, paper_id) -> t.Dict[str, t.Any]:
+    paper = await redis_client.hgetall(p.id)
+    paper.pop(b"vector") 
     score = 1 - float(p.vector_score)
     paper['similarity_score'] = score
     return paper
@@ -132,11 +131,11 @@ async def find_papers_by_user_text(similarity_request: UserTextSimilarityRequest
 
 
 # SIMPA
-async def papers_from_results_simpa(results) -> t.Dict[str, t.Any]:
+async def papers_from_results_simpa(results, paper_id) -> t.Dict[str, t.Any]:
     # extract papers from VSS results
     return {
         'papers': [
-            await process_paper(p, i)
+            await process_paper(p, i, paper_id)
             for i, p in enumerate(results.docs)
         ]
     }
@@ -158,6 +157,5 @@ async def find_papers_by_id(paperid_request: PaperIdRequest):
     # obtain results of the queries
     results = await redis_client.ft(config.INDEX_NAME).search(query, query_params={"vec_param": vector})
     
-    print(results)
     # Get Paper records of those results
-    return await papers_from_results_simpa(results)
+    return await papers_from_results_simpa(results, paperid_request.paper_id)
