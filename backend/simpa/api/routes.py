@@ -131,7 +131,7 @@ async def find_papers_by_user_text(similarity_request: UserTextSimilarityRequest
 
 
 # SIMPA
-async def papers_from_results_simpa(total, results) -> t.Dict[str, t.Any]:
+async def papers_from_results_simpa(results) -> t.Dict[str, t.Any]:
     # extract papers from VSS results
     return {
         'papers': [
@@ -155,9 +155,8 @@ async def find_papers_by_id(paperid_request: PaperIdRequest):
     vector = await redis_client.hget(paper_vector_key, "vector")
 
     # obtain results of the queries
-    results = await asyncio.gather(
-        redis_client.ft(config.INDEX_NAME).search(query, query_params={"vec_param": vector})
-    )
-
+    results = await redis_client.ft(config.INDEX_NAME).search(query, query_params={"vec_param": vector})
+    
+    print(results)
     # Get Paper records of those results
     return await papers_from_results_simpa(results)
