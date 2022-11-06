@@ -1,7 +1,7 @@
 import re
 
 from config import INDEX_NAME
-from redis import Redis
+from redis.asyncio import Redis
 from redis.commands.search.query import Query
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 from redis.commands.search.field import VectorField
@@ -37,7 +37,7 @@ class SearchIndex:
     """
     escaper = TokenEscaper()
 
-    def create_flat(
+    async def create_flat(
         self,
         *fields,
         redis_conn: Redis,
@@ -63,14 +63,14 @@ class SearchIndex:
                 "BLOCK_SIZE": number_of_vectors
             }
         )
-        self._create(
+        await self._create(
             *fields,
             vector_field,
             redis_conn=redis_conn,
             prefix=prefix
         )
 
-    def create_hnsw(
+    async def create_hnsw(
         self,
         *fields,
         redis_conn: Redis,
@@ -95,22 +95,21 @@ class SearchIndex:
                 "INITIAL_CAP": number_of_vectors,
             }
         )
-        self._create(
+        await self._create(
             *fields,
             vector_field,
             redis_conn=redis_conn,
             prefix=prefix
         )
 
-    def _create(
+    async def _create(
         self,
         *fields,
         redis_conn: Redis,
         prefix: str
     ):
         # Create Index
-        print("GET INDEX_NAME: ", INDEX_NAME)
-        redis_conn.ft(INDEX_NAME).create_index(
+        await redis_conn.ft(INDEX_NAME).create_index(
             fields = fields,
             definition= IndexDefinition(prefix=[prefix], index_type=IndexType.HASH)
         )
