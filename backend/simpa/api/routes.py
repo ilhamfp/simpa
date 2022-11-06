@@ -19,6 +19,7 @@ redis_client = redis.from_url(config.REDIS_URL)
 search_index = SearchIndex()
 
 async def process_paper(p, i: int) -> t.Dict[str, t.Any]:
+    print("Trying to get: ", p.paper_pk)
     paper = await Paper.get(p.paper_pk)
     paper = paper.dict()
     score = 1 - float(p.vector_score)
