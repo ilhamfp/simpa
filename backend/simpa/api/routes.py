@@ -4,6 +4,7 @@ import redis.asyncio as redis
 
 from fastapi import APIRouter
 from simpa import config
+from simpa.embeddings import Embeddings
 from simpa.models import Paper
 
 from simpa.schema import (
@@ -13,9 +14,13 @@ from simpa.schema import (
 )
 from simpa.search_index import SearchIndex
 
+import requests
+from bs4 import BeautifulSoup
+
 
 paper_router = r = APIRouter()
 redis_client = redis.from_url(config.REDIS_URL)
+embeddings = Embeddings()
 search_index = SearchIndex()
 
 async def process_paper(p, i: int, paper_id) -> t.Dict[str, t.Any]:
@@ -34,71 +39,6 @@ async def papers_from_results(total, results) -> t.Dict[str, t.Any]:
             for i, p in enumerate(results.docs)
         ]
     }
-
-
-@r.get("/", response_model=t.Dict)
-async def get_papers(
-    limit: int = 20,
-    skip: int = 0,
-    years: str = "",
-    categories: str = ""
-):
-    papers = []
-    expressions = []
-    years = [year for year in years.split(",") if year]
-    categories = [cat for cat in categories.split(",") if cat]
-    if years and categories:
-        expressions.append(
-            (Paper.year << years) & \
-            (Paper.categories << categories)
-        )
-    elif years and not categories:
-        expressions.append(Paper.year << years)
-    elif categories and not years:
-        expressions.append(Paper.categories << categories)
-    # Run query
-
-    papers = await Paper.find(*expressions)\
-        .copy(offset=skip, limit=limit)\
-        .execute(exhaust_results=False)
-
-    # Get total count
-    total = (
-        await redis_client.ft(config.INDEX_NAME).search(
-            search_index.count_query(years=years, categories=categories)
-        )
-    ).total
-    return {
-        'total': total,
-        'papers': papers
-    }
-
-@r.post("/vectorsearch/text", response_model=t.Dict)
-async def find_papers_by_text(similarity_request: SimilarityRequest):
-    # Create query
-    query = search_index.vector_query(
-        similarity_request.categories,
-        similarity_request.years,
-        similarity_request.search_type,
-        similarity_request.number_of_results
-    )
-    count_query = search_index.count_query(
-        years=similarity_request.years,
-        categories=similarity_request.categories
-    )
-
-    # find the vector of the Paper listed in the request
-    paper_vector_key = "paper_vector:" + str(similarity_request.paper_id)
-    vector = await redis_client.hget(paper_vector_key, "vector")
-
-    # obtain results of the queries
-    total, results = await asyncio.gather(
-        redis_client.ft(config.INDEX_NAME).search(count_query),
-        redis_client.ft(config.INDEX_NAME).search(query, query_params={"vec_param": vector})
-    )
-
-    # Get Paper records of those results
-    return await papers_from_results(total.total, results)
 
 
 @r.post("/vectorsearch/text/user", response_model=t.Dict)
@@ -142,6 +82,7 @@ async def papers_from_results_simpa(results, paper_id) -> t.Dict[str, t.Any]:
 
 @r.post("/vectorsearch/id", response_model=t.Dict)
 async def find_papers_by_id(paperid_request: PaperIdRequest):
+    print("Finding papers by paperid: ", paperid_request)
     # Create query
     query = search_index.vector_query(
         [],
@@ -154,8 +95,29 @@ async def find_papers_by_id(paperid_request: PaperIdRequest):
     paper_vector_key = "paper_vector:" + str(paperid_request.paper_id)
     vector = await redis_client.hget(paper_vector_key, "vector")
 
+    # if the paper is not preprocessed yet in our db, infer vector on the fly 
+    if not vector:
+        vector = get_paper_title_desc_by_id(paperid_request.paper_id)
+
     # obtain results of the queries
     results = await redis_client.ft(config.INDEX_NAME).search(query, query_params={"vec_param": vector})
     
     # Get Paper records of those results
     return await papers_from_results_simpa(results, paperid_request.paper_id)
+
+def get_paper_title_desc_by_id(paper_id):
+    print("Getting paper title & desc on the fly for: ", paper_id)
+    url = "https://arxiv.org/abs/{paper_id}".format(
+        paper_id = paper_id
+    )
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text)
+
+    metas = soup.find_all('meta')
+    title_meta = [meta.attrs['content'] for meta in metas if 'name' in meta.attrs and meta.attrs['name'] == 'citation_title']
+    title = title_meta[0] if len(title_meta) > 0 else ""
+    description_meta = [meta.attrs['content'] for meta in metas if 'name' in meta.attrs and meta.attrs['name'] == 'citation_abstract']
+    description = description_meta[0] if len(description_meta) > 0 else ""
+
+    vector = embeddings.make(title + ' ' + description).tobytes()
+    return vector
