@@ -40,36 +40,6 @@ async def papers_from_results(total, results) -> t.Dict[str, t.Any]:
         ]
     }
 
-
-@r.post("/vectorsearch/text/user", response_model=t.Dict)
-async def find_papers_by_user_text(similarity_request: UserTextSimilarityRequest):
-    # Create query
-    query = search_index.vector_query(
-        similarity_request.categories,
-        similarity_request.years,
-        similarity_request.search_type,
-        similarity_request.number_of_results
-    )
-    count_query = search_index.count_query(
-        years=similarity_request.years,
-        categories=similarity_request.categories
-    )
-
-    # obtain results of the queries
-    total, results = await asyncio.gather(
-        redis_client.ft(config.INDEX_NAME).search(count_query),
-        redis_client.ft(config.INDEX_NAME).search(
-            query,
-            query_params={
-                "vec_param": embeddings.make(similarity_request.user_text).tobytes()
-            }
-        )
-    )
-
-    # Get Paper records of those results
-    return await papers_from_results(total.total, results)
-
-
 # SIMPA
 async def papers_from_results_simpa(results, paper_id) -> t.Dict[str, t.Any]:
     # extract papers from VSS results
