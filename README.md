@@ -14,10 +14,9 @@ Because we did, and that's why we built Simpa: a similar paper chrome extension 
 
 With Simpa you can find out papers that are similar to the paper you're currently browsing as easy as one click! Simpa will also automatically **compare** and **contrast** paper by utilizing the 5Ws + 1H (What, Why, When, Where, Who, and How). So you can also easily read what makes them similar & different.
 
-> Meaningful comparison, however, can enlighten an audience toward unknown similarities or differences between subjects. The more informative or surprising a comparative is, the more likely an audience is to be engaged.
-
-
 <p align="center"> <img src="assets/demo.gif" alt="simpa_demo"/>
+
+> Meaningful comparison can enlighten an audience toward unknown similarities or differences between subjects. The more informative or surprising a comparative is, the more likely an audience is to be engaged.
 
 ## Installation Guide
 Follow the installation guide [here](https://github.com/christianwbsn/simpa-ext)
