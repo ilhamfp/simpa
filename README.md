@@ -28,7 +28,7 @@ Who's going to benefit?
 * Avid paperswithcode fans
 
 ## Where?
-For now Simpa can only work in [paperswithcode.com](https://paperswithcode.com/). This extension serves as a tribute to the community, because as ML practitioners, paperswithcode is one of the websites that greatly contributes to the advancement of machine learning research
+For now Simpa works smoothly in [paperswithcode.com](https://paperswithcode.com/). This extension serves as a tribute to the community, because as ML practitioners, paperswithcode is one of the websites that greatly contributes to the advancement of machine learning research
 
 ## How
 We build Simpa using Redis Cloud Vector Database, Saturn Cloud, and Huggingface. There are 4 main component to this project:
