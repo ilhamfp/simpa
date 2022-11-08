@@ -19,6 +19,8 @@ With Simpa you can find out papers that are similar to the paper you're currentl
 
 <p align="center"> <img src="assets/demo.gif" alt="simpa_demo"/>
 
+## Installation Guide
+Follow the installation guide [here](https://github.com/christianwbsn/simpa-ext)
 
 ## Who?
 Who's going to benefit?
@@ -33,8 +35,8 @@ For now Simpa works smoothly in [paperswithcode.com](https://paperswithcode.com/
 ## How
 We build Simpa using Redis Cloud Vector Database, Saturn Cloud, and Huggingface. There are 4 main component to this project:
 * Text Embedding & Paper Processing
-* RediSearch Vector Similarity Search
-* Saturn Cloud Webserver
+* Redis Cloud & RediSearch Vector Similarity Search
+* Saturn Cloud & FastAPI Deployment
 * Google Chrome Extension
 
 Here's an overview of the app:
@@ -46,3 +48,9 @@ Open API Documentation for our webserver can be accessed here:
 [https://simpa.community.saturnenterprise.io/api/docs](https://simpa.community.saturnenterprise.io/api/docs)
 
 <p align="center"> <img src="assets/be.png" alt="simpa_overview" width="750"/>
+
+More details on the backend [here](/backend/simpa/)
+
+## Authors
+* [Christian Wibisono](https://github.com/christianwbsn)
+* [Ilham Firdausi Putra](https://github.com/ilhamfp)
