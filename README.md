@@ -25,3 +25,9 @@ We build Simpa using Redis Cloud Vector Database, Saturn Cloud, and Huggingface.
 Here's an overview of the app:
 
 <p align="center"> <img src="assets/Simpa_App_Diagram.png" alt="simpa_overview" width="750"/>
+
+## API Docs
+Open API Documentation for our webserver can be accessed here:
+[https://simpa.community.saturnenterprise.io/api/docs](https://simpa.community.saturnenterprise.io/api/docs)
+
+<p align="center"> <img src="assets/be.png" alt="simpa_overview" width="750"/>
