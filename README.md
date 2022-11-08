@@ -38,7 +38,7 @@ We build Simpa during [Vector Search Engineering Lab MLOps Community Engineering
 * Saturn Cloud & FastAPI Deployment
 * Google Chrome Extension
 
-Click [here](bit.ly/simpaDeck) to see our submission pitch deck.
+Click [here](https://bit.ly/simpaDeck) to see our submission pitch deck.
 
 Here's an overview of the app:
 
