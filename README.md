@@ -32,11 +32,13 @@ Who's going to benefit?
 For now Simpa works smoothly in [paperswithcode.com](https://paperswithcode.com/). This extension serves as a tribute to the community, because as ML practitioners, paperswithcode is one of the websites that greatly contributes to the advancement of machine learning research
 
 ## How
-We build Simpa using Redis Cloud Vector Database, Saturn Cloud, and Huggingface. There are 4 main component to this project:
+We build Simpa during [Vector Search Engineering Lab MLOps Community Engineering Lab Hackathon](hackathon.redisventures.com). There are 4 main component to this project:
 * Text Embedding & Paper Processing
 * Redis Cloud & RediSearch Vector Similarity Search
 * Saturn Cloud & FastAPI Deployment
 * Google Chrome Extension
+
+Click [here](bit.ly/simpaDeck) to see our submission pitch deck.
 
 Here's an overview of the app:
 
